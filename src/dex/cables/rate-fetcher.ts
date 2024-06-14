@@ -25,9 +25,6 @@ export class CablesRateFetcher {
   private pricesCacheKey: string;
   private pricesCacheTTL: number;
 
-  private tokensCacheKey: string;
-  private tokensCacheTTL: number;
-
   private blacklistFetcher: Fetcher<CablesBlacklistResponse>;
   private blacklistCacheKey: string;
   private blacklistCacheTTL: number;
@@ -36,16 +33,12 @@ export class CablesRateFetcher {
     private dexHelper: IDexHelper,
     private dexKey: string,
     private network: Network,
-    private logger: Logger,
     config: CablesRateFetcherConfig,
   ) {
     this.pairsCacheKey = config.rateConfig.pairsCacheKey;
     this.pairsCacheTTL = config.rateConfig.pairsCacheTTLSecs;
     this.pricesCacheKey = config.rateConfig.pricesCacheKey;
     this.pricesCacheTTL = config.rateConfig.pricesCacheTTLSecs;
-    this.tokensAddrCacheKey = config.rateConfig.tokensAddrCacheKey;
-    this.tokensCacheKey = config.rateConfig.tokensCacheKey;
-    this.tokensCacheTTL = config.rateConfig.tokensCacheTTLSecs;
     this.blacklistCacheKey = config.rateConfig.blacklistCacheKey;
     this.blacklistCacheTTL = config.rateConfig.blacklistCacheTTLSecs;
 
@@ -120,26 +113,6 @@ export class CablesRateFetcher {
 
   private handlePairsResponse(res: CablesPairsResponse): void {
     const dexPairs: CablesPairsResponse['pairs'] = res.pairs;
-    const tokenMap: { [address: string]: Token } = {};
-    const tokenAddrMap: { [symbol: string]: string } = {};
-
-    // Object.keys(pairs).forEach(pair => {
-    //   dexPairs[pair.toLowerCase()] = pairs[pair];
-    //   tokenAddrMap[pairs[pair].base.toLowerCase()] =
-    //     pairs[pair].baseAddress.toLowerCase();
-    //   tokenAddrMap[pairs[pair].quote.toLowerCase()] =
-    //     pairs[pair].quoteAddress.toLowerCase();
-    //   tokenMap[pairs[pair].baseAddress.toLowerCase()] = {
-    //     address: pairs[pair].baseAddress.toLowerCase(),
-    //     symbol: pairs[pair].base,
-    //     decimals: pairs[pair].baseDecimals,
-    //   };
-    //   tokenMap[pairs[pair].quoteAddress.toLowerCase()] = {
-    //     address: pairs[pair].quoteAddress.toLowerCase(),
-    //     symbol: pairs[pair].quote,
-    //     decimals: pairs[pair].quoteDecimals,
-    //   };
-    // });
 
     this.dexHelper.cache.setex(
       this.dexKey,
@@ -149,29 +122,12 @@ export class CablesRateFetcher {
       JSON.stringify(dexPairs),
     );
 
-    // this.dexHelper.cache.setex(
-    //   this.dexKey,
-    //   this.network,
-    //   this.tokensCacheKey,
-    //   this.tokensCacheTTL,
-    //   JSON.stringify(tokenMap),
-    // );
-
-    // this.dexHelper.cache.setex(
-    //   this.dexKey,
-    //   this.network,
-    //   this.tokensAddrCacheKey,
-    //   this.tokensCacheTTL,
-    //   JSON.stringify(tokenAddrMap),
-    // );
+    
   }
 
   private handleRatesResponse(res: CablesPricesResponse): void {
     const { prices } = res;
     const dexPrices: PriceDataMap = prices;
-    // Object.keys(prices).forEach(pair => {
-    //   dexPrices[pair.toLowerCase()] = prices[pair];
-    // });
 
     this.dexHelper.cache.setex(
       this.dexKey,
